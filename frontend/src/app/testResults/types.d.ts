@@ -12,7 +12,7 @@ interface SRMultiplexResult extends DiseaseName {
 }
 
 interface PxpMultiplexResult extends DiseaseName {
-  result: TestResult;
+  testResult: TestResult;
 }
 
 type MultiplexResult = SRMultiplexResult | PxpMultiplexResult;

@@ -137,10 +137,16 @@ if (process.env.MULTIPLEX_ENABLED === "true") {
       multiplexPxpTestResult.results = [
         {
           disease: { name: "COVID-19" },
-          result: "NEGATIVE",
+          testResult: "NEGATIVE",
         } as MultiplexResult,
-        { disease: { name: "Flu A" }, result: "NEGATIVE" } as MultiplexResult,
-        { disease: { name: "Flu B" }, result: "NEGATIVE" } as MultiplexResult,
+        {
+          disease: { name: "Flu A" },
+          testResult: "NEGATIVE",
+        } as MultiplexResult,
+        {
+          disease: { name: "Flu B" },
+          testResult: "NEGATIVE",
+        } as MultiplexResult,
       ];
       multiplexPxpTestResult.facility.orderingProvider.NPI = undefined;
       multiplexPxpTestResult.facility.orderingProvider.npi = "fake npi for pxp";

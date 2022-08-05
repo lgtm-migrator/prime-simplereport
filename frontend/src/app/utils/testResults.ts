@@ -2,8 +2,6 @@ function getTestResult(result: MultiplexResult): TestResult {
   if (result) {
     if ("testResult" in result) {
       return result.testResult;
-    } else if ("result" in result) {
-      return result.result;
     }
   }
   return "UNKNOWN";
