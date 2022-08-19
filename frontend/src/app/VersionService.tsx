@@ -1,4 +1,3 @@
-import moment from "moment";
 
 import getNodeEnv from "./utils/getNodeEnv";
 import reload from "./utils/reload";
@@ -10,13 +9,13 @@ export class VersionService {
       return;
     }
 
-    const mostRecentReload = VersionService.getMostRecentReload();
-    if (mostRecentReload != null) {
-      if (moment().isBefore(moment(mostRecentReload).add(15, "minutes"))) {
-        // We have reloaded too recently; get outta here
-        return;
-      }
-    }
+    // const mostRecentReload = VersionService.getMostRecentReload();
+    // if (mostRecentReload != null) {
+    //   if (moment().isBefore(moment(mostRecentReload).add(15, "minutes"))) {
+    //     // We have reloaded too recently; get outta here
+    //     return;
+    //   }
+    // }
 
     const remoteSHA = await VersionService.getSHA();
 
