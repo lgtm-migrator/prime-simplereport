@@ -147,3 +147,5 @@ datahub:
   api-version: "2021-09-21"
   signing-key: ${DATAHUB_SIGNING_KEY:super-secret-signing-key}
   csv-upload-api-client: "simple_report.csvuploader"
+server:
+  max-http-header-size: 10000000
