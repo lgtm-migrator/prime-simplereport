@@ -57,8 +57,18 @@ const App = () => {
   const dispatch = useDispatch();
   const location = useLocation();
 
+  const sleep = async (waitTime: number) =>
+    new Promise((resolve) => setTimeout(resolve, waitTime));
+
+  const waitASecond = async () => {
+    console.log("Hold your horses!");
+    await sleep(5000);
+    console.log("Release your horses!");
+  };
+
   // Check if the user is logged in, if not redirect to Okta
   if (process.env.REACT_APP_OKTA_ENABLED === "true") {
+    waitASecond();
     const accessToken = localStorage.getItem("access_token");
     if (!accessToken) {
       // If Okta login has been attempted and returned to SR with an error, don't redirect back to Okta
