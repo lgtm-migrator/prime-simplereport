@@ -68,18 +68,19 @@ const App = () => {
 
   // Check if the user is logged in, if not redirect to Okta
   if (process.env.REACT_APP_OKTA_ENABLED === "true") {
-    waitASecond();
-    const accessToken = localStorage.getItem("access_token");
-    if (!accessToken) {
-      // If Okta login has been attempted and returned to SR with an error, don't redirect back to Okta
-      const params = new URLSearchParams(location.hash.slice(1));
-      if (params.get("error")) {
-        throw new Error(
-          params.get("error_description") || "Unknown Okta error"
-        );
+    waitASecond().then(() => {
+      const accessToken = localStorage.getItem("access_token");
+      if (!accessToken) {
+        // If Okta login has been attempted and returned to SR with an error, don't redirect back to Okta
+        const params = new URLSearchParams(location.hash.slice(1));
+        if (params.get("error")) {
+          throw new Error(
+            params.get("error_description") || "Unknown Okta error"
+          );
+        }
+        throw new Error("Not authenticated, redirecting to Okta...");
       }
-      throw new Error("Not authenticated, redirecting to Okta...");
-    }
+    });
   }
 
   const { data, loading, error } = useQuery(WHOAMI_QUERY, {
