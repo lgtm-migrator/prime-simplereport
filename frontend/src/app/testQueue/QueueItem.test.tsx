@@ -7,6 +7,7 @@ import moment from "moment";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import * as flaggedMock from "flagged";
+import axe from "axe-core";
 
 import { getAppInsights } from "../TelemetryService";
 import * as utils from "../utils/index";
@@ -96,6 +97,46 @@ describe("QueueItem", () => {
     );
     expect(screen.getByText("Potter, Harry James")).toBeInTheDocument();
     expect(screen.getByTestId("timer")).toHaveTextContent("10:00");
+  });
+
+  it("renders the test queue without accessibility violations", () => {
+    render(
+      <MemoryRouter>
+        <MockedProvider mocks={[]}>
+          <Provider store={store}>
+            <QueueItem
+              internalId={testProps.internalId}
+              patient={testProps.patient}
+              askOnEntry={testProps.askOnEntry}
+              selectedDeviceId={testProps.selectedDeviceId}
+              selectedDeviceTestLength={testProps.selectedDeviceTestLength}
+              selectedDeviceSpecimenTypeId={
+                testProps.selectedDeviceSpecimenTypeId
+              }
+              deviceSpecimenTypes={testProps.deviceSpecimenTypes}
+              selectedTestResults={testProps.selectedTestResults}
+              devices={testProps.devices}
+              refetchQueue={testProps.refetchQueue}
+              facilityId={testProps.facilityId}
+              dateTestedProp={testProps.dateTestedProp}
+              facilityName="Foo facility"
+              setStartTestPatientId={setStartTestPatientIdMock}
+              startTestPatientId=""
+            />
+          </Provider>
+        </MockedProvider>
+      </MemoryRouter>
+    );
+    axe
+      .run()
+      .then((results) => {
+        if (results.violations.length) {
+          throw new Error("Accessibility issues found");
+        }
+      })
+      .catch((err) => {
+        console.error("Something bad happened:", err.message);
+      });
   });
 
   it("scroll to patient and highlight when startTestPatientId is present", async () => {
