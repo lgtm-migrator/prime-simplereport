@@ -10,6 +10,7 @@ import * as smartyStreets from "../../utils/smartyStreets";
 import FacilityForm from "./FacilityForm";
 
 import "../../../i18n";
+import axe from "axe-core";
 
 let saveFacility: jest.Mock;
 
@@ -125,6 +126,28 @@ describe("FacilityForm", () => {
     getIsValidZipForStateSpy.mockRestore();
     getBestSuggestionSpy.mockRestore();
     suggestionIsCloseEnoughSpy.mockRestore();
+  });
+
+  it("is accessible", () => {
+    render(
+      <MemoryRouter>
+        <FacilityForm
+          facility={validFacility}
+          deviceTypes={devices}
+          saveFacility={saveFacility}
+        />
+      </MemoryRouter>
+    );
+    axe
+      .run()
+      .then((results) => {
+        if (results.violations.length) {
+          throw new Error("Accessibility issues found");
+        }
+      })
+      .catch((err) => {
+        console.error("Something bad happened:", err.message);
+      });
   });
 
   describe("form submission", () => {

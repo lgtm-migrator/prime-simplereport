@@ -13,6 +13,7 @@ import {
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import axe from "axe-core";
 
 import {
   GetFacilityQueueMultiplexDocument,
@@ -254,6 +255,9 @@ describe("App", () => {
     expect(
       await screen.findByText("COVID-19 testing data")
     ).toBeInTheDocument();
+    axe.run().then((results) => {
+      expect(results.violations.length).toBe(0);
+    });
   });
   it("should show error UI", async () => {
     const mockedStore = mockStore({ ...store, dataLoaded: true });

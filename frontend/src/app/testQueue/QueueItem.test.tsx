@@ -127,16 +127,9 @@ describe("QueueItem", () => {
         </MockedProvider>
       </MemoryRouter>
     );
-    axe
-      .run()
-      .then((results) => {
-        if (results.violations.length) {
-          throw new Error("Accessibility issues found");
-        }
-      })
-      .catch((err) => {
-        console.error("Something bad happened:", err.message);
-      });
+    axe.run().then((results) => {
+      expect(results.violations.length).toBe(0);
+    });
   });
 
   it("scroll to patient and highlight when startTestPatientId is present", async () => {
