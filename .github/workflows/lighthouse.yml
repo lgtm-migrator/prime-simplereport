@@ -56,7 +56,8 @@ jobs:
           yarn install
           yarn build
       - name: run Lighthouse CI
-        env:         # CI settings
+        env:
+          # CI settings
           CI: 1
           # docker settings
           DOCKER_CLIENT_TIMEOUT: 180
@@ -70,13 +71,6 @@ jobs:
           SMARTY_AUTH_TOKEN: ${{ secrets.SMARTY_AUTH_TOKEN }}
           SPRING_LIQUIBASE_ENABLED: "true"
           GIT_DISCOVERY_ACROSS_FILESYSTEM: 1
-          # cypress settings
-          #CYPRESS_OKTA_USERNAME: ${{ secrets.CYPRESS_OKTA_USERNAME }}
-          #CYPRESS_OKTA_PASSWORD: ${{ secrets.CYPRESS_OKTA_PASSWORD }}
-          #CYPRESS_OKTA_SECRET: ${{ secrets.CYPRESS_OKTA_SECRET }}
-          #WIREMOCK_URL: "http://cypress:8088"
-          #SPEC_PATH: "cypress/integration/*"
-          #TEST_ENV: "https://localhost.simplereport.gov"
           # frontend settings
           #REACT_APP_OKTA_URL: "http://cypress:8088"
           REACT_APP_OKTA_CLIENT_ID: 0oa1k0163nAwfVxNW1d7
