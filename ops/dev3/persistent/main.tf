@@ -62,6 +62,25 @@ module "db" {
   tags = local.management_tags
 }
 
+module "matomo_database" {
+  source = "../../services/matomo/database"
+  env         = local.env
+  env_level   = local.env_level
+  rg_location = local.rg_location
+  rg_name     = local.rg_name
+
+  global_vault_id     = data.azurerm_key_vault.global.id
+  db_vault_id         = data.azurerm_key_vault.db_keys.id
+  subnet_id           = module.vnet.subnet_db_id
+  log_workspace_id    = module.monitoring.log_analytics_workspace_id
+  private_dns_zone_id = module.vnet.private_dns_zone_id
+  network_address     = local.network_cidr
+
+  vnet_name = module.vnet.network.name
+
+  tags = local.management_tags
+}
+
 module "db_alerting" {
   source  = "../../services/alerts/db_metrics"
   env     = local.env

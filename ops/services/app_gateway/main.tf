@@ -11,6 +11,9 @@ locals {
   staging_pool                    = "${var.name}-${var.env}-be-staging"
   staging_http_setting            = "${var.name}-${var.env}-be-api-staging-http"
   staging_https_setting           = "${var.name}-${var.env}-be-api-staging-https"
+  matomo_pool                    = "${var.name}-${var.env}-be-matomo"
+  matomo_http_setting            = "${var.name}-${var.env}-be-api-matomo-http"
+  matomo_https_setting           = "${var.name}-${var.env}-be-api-matomo-https"
   http_listener                   = "${var.name}-http"
   https_listener                  = "${var.name}-https"
   frontend_config                 = "${var.name}-config"
@@ -184,6 +187,31 @@ resource "azurerm_application_gateway" "load_balancer" {
     pick_host_name_from_backend_address = true
   }
 
+  # ------- Backend Matomo App -------------------------
+  backend_address_pool {
+    name         = local.matomo_pool
+    fqdns        = var.matomo_fqdns
+    ip_addresses = var.matomo_ip_addresses
+  }
+
+  backend_http_settings {
+    name                                = local.matomo_http_setting
+    cookie_based_affinity               = "Disabled"
+    port                                = 80
+    protocol                            = "Http"
+    request_timeout                     = 20
+    pick_host_name_from_backend_address = true
+  }
+
+  backend_http_settings {
+    name                                = local.matomo_https_setting
+    cookie_based_affinity               = "Disabled"
+    port                                = 443
+    protocol                            = "Https"
+    request_timeout                     = 20
+    pick_host_name_from_backend_address = true
+  }
+
   # ------- Listeners -------------------------
 
   frontend_ip_configuration {
@@ -303,6 +331,14 @@ resource "azurerm_application_gateway" "load_balancer" {
       backend_http_settings_name = local.metabase_https_setting
       rewrite_rule_set_name      = "simple-report-metabase-routing"
     }
+
+    path_rule {
+      name                       = "matomo"
+      paths                      = ["/matomo/*", "/matomo"]
+      backend_address_pool_name  = local.matomo_pool
+      backend_http_settings_name = local.matomo_https_setting
+      rewrite_rule_set_name      = "simple-report-matomo-routing"
+    }
   }
 
   redirect_configuration {
@@ -347,6 +383,29 @@ resource "azurerm_application_gateway" "load_balancer" {
         ignore_case = true
         negate      = false
         pattern     = ".*api/(.*)"
+        variable    = "var_uri_path"
+      }
+
+      url {
+        path    = "/{var_uri_path_1}"
+        reroute = false
+        # Per documentation, we should be able to leave this pass-through out. See however
+        # https://github.com/terraform-providers/terraform-provider-azurerm/issues/11563
+        query_string = "{var_query_string}"
+      }
+    }
+  }
+
+  rewrite_rule_set {
+    name = "simple-report-matomo-routing"
+
+    rewrite_rule {
+      name          = "matomo-wildcard"
+      rule_sequence = 100
+      condition {
+        ignore_case = true
+        negate      = false
+        pattern     = ".*matomo/(.*)"
         variable    = "var_uri_path"
       }
 

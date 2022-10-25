@@ -37,6 +37,11 @@ variable "staging_fqdns" {
   default = []
 }
 
+variable "matomo_fqdns" {
+  type    = list(string)
+  default = []
+}
+
 variable "ip_addresses" {
   type    = list(string)
   default = []
@@ -48,6 +53,11 @@ variable "metabase_ip_addresses" {
 }
 
 variable "staging_ip_addresses" {
+  type    = list(string)
+  default = []
+}
+
+variable "matomo_ip_addresses" {
   type    = list(string)
   default = []
 }

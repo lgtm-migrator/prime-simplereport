@@ -65,6 +65,10 @@ module "app_gateway" {
     module.simple_report_api.staging_hostname
   ]
 
+  matomo_fqdns = [
+    module.matomo_service.app_hostname
+  ]
+
   firewall_policy_id = module.web_application_firewall.web_application_firewall_id
   tags               = local.management_tags
 }

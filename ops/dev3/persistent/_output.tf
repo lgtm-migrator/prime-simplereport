@@ -2,6 +2,10 @@ output "vnet_id" {
   value = module.vnet.network.id
 }
 
+output "vnet_name" {
+  value = module.vnet.network.name
+}
+
 output "subnet_vm_id" {
   value = module.vnet.subnet_vm_id
 }
@@ -37,4 +41,12 @@ output "postgres_server_id" {
 
 output "network_profile_id" {
   value = module.vnet.network_profile_id
+}
+
+output "matomo_server_name" {
+  value = module.matomo_database.server_name
+}
+
+output "matomo_server_fqdn" {
+  value = module.matomo_database.server_fqdn
 }
