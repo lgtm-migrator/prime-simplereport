@@ -25,6 +25,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Slf4j
 @SpringBootApplication
@@ -44,6 +45,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableFeignClients
 public class SimpleReportApplication {
   public static void main(String[] args) {
+    SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
     SpringApplication.run(SimpleReportApplication.class, args);
   }
 

@@ -12,8 +12,10 @@ import gov.cdc.usds.simplereport.service.PatientBulkUploadService;
 import gov.cdc.usds.simplereport.service.TestResultUploadService;
 import java.io.IOException;
 import java.io.InputStream;
+import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,6 +24,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @RequiredArgsConstructor
 @Slf4j
+@EnableAsync
 public class FileUploadController {
   public static final String TEXT_CSV_CONTENT_TYPE = "text/csv";
   private final PatientBulkUploadService patientBulkUploadService;
@@ -29,11 +32,13 @@ public class FileUploadController {
 
   @PostMapping(PATIENT_UPLOAD)
   public PatientBulkUploadResponse handlePatientsUpload(
-      @RequestParam("file") MultipartFile file, @RequestParam String rawFacilityId) {
+      @RequestParam("file") MultipartFile file,
+      @RequestParam String rawFacilityId,
+      HttpServletRequest request) {
     assertCsvFileType(file);
 
     try (InputStream people = file.getInputStream()) {
-      return patientBulkUploadService.processPersonCSV(people, parseUUID(rawFacilityId));
+      return patientBulkUploadService.processPersonCSV(people, parseUUID(rawFacilityId), request);
     } catch (IllegalGraphqlArgumentException e) {
       log.error("Invalid facility id passed", e);
       throw new BadRequestException("Invalid facility id");

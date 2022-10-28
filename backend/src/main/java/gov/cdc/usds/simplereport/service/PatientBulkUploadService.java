@@ -1,34 +1,26 @@
 package gov.cdc.usds.simplereport.service;
 
-import static gov.cdc.usds.simplereport.api.Translators.parsePersonRole;
-import static gov.cdc.usds.simplereport.api.Translators.parsePhoneType;
-import static gov.cdc.usds.simplereport.api.Translators.parseUserShortDate;
-import static gov.cdc.usds.simplereport.api.Translators.parseYesNo;
-
-import com.fasterxml.jackson.databind.MappingIterator;
 import gov.cdc.usds.simplereport.api.model.errors.CsvProcessingException;
 import gov.cdc.usds.simplereport.api.uploads.PatientBulkUploadResponse;
 import gov.cdc.usds.simplereport.config.AuthorizationConfiguration;
 import gov.cdc.usds.simplereport.db.model.Facility;
 import gov.cdc.usds.simplereport.db.model.Organization;
-import gov.cdc.usds.simplereport.db.model.PhoneNumber;
-import gov.cdc.usds.simplereport.db.model.auxiliary.StreetAddress;
 import gov.cdc.usds.simplereport.db.model.auxiliary.UploadStatus;
+import gov.cdc.usds.simplereport.service.PatientBulkUploadServiceAsync.*;
 import gov.cdc.usds.simplereport.service.model.reportstream.FeedbackMessage;
-import gov.cdc.usds.simplereport.validators.CsvValidatorUtils;
 import gov.cdc.usds.simplereport.validators.PatientBulkUploadFileValidator;
-import gov.cdc.usds.simplereport.validators.PatientBulkUploadFileValidator.PatientUploadRow;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import javax.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service to upload a roster of patient data given a CSV input. Formerly restricted to superusers
@@ -37,19 +29,19 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>Updated by emmastephenson on 10/24/2022
  */
 @Service
-@Transactional
 @RequiredArgsConstructor
 @Slf4j
+@EnableAsync
 public class PatientBulkUploadService {
 
-  private final PersonService _personService;
-  private final AddressValidationService _addressValidationService;
   private final OrganizationService _organizationService;
   private final PatientBulkUploadFileValidator _patientBulkUploadFileValidator;
+  private final PatientBulkUploadServiceAsync _async;
 
   // This authorization will change once we open the feature to end users
   @AuthorizationConfiguration.RequireGlobalAdminUser
-  public PatientBulkUploadResponse processPersonCSV(InputStream csvStream, UUID facilityId)
+  public PatientBulkUploadResponse processPersonCSV(
+      InputStream csvStream, UUID facilityId, HttpServletRequest request)
       throws IllegalArgumentException {
 
     PatientBulkUploadResponse result = new PatientBulkUploadResponse();
@@ -78,78 +70,13 @@ public class PatientBulkUploadService {
     // because what needs to happen is that we return a success message to the end user
     // but continue to process the csv (create person records) in the background.
     // Putting a pin in it for now.
-
-    final MappingIterator<Map<String, String>> valueIterator =
-        CsvValidatorUtils.getIteratorForCsv(new ByteArrayInputStream(content));
-
     Optional<Facility> facility =
         Optional.ofNullable(facilityId).map(_organizationService::getFacilityInCurrentOrg);
 
-    while (valueIterator.hasNext()) {
-      final Map<String, String> row = CsvValidatorUtils.getNextRow(valueIterator);
-
-      try {
-
-        PatientUploadRow extractedData = new PatientUploadRow(row);
-
-        // Fetch address information
-        StreetAddress address =
-            _addressValidationService.getValidatedAddress(
-                extractedData.getStreet().getValue(),
-                extractedData.getStreet2().getValue(),
-                extractedData.getCity().getValue(),
-                extractedData.getState().getValue(),
-                extractedData.getZipCode().getValue(),
-                null);
-
-        String country = "USA";
-
-        if (_personService.isDuplicatePatient(
-            extractedData.getFirstName().getValue(),
-            extractedData.getLastName().getValue(),
-            parseUserShortDate(extractedData.getDateOfBirth().getValue()),
-            org,
-            facility)) {
-          continue;
-        }
-
-        _personService.addPatient(
-            facilityId,
-            null, // lookupID
-            extractedData.getFirstName().getValue(),
-            extractedData.getMiddleName().getValue(),
-            extractedData.getLastName().getValue(),
-            extractedData.getSuffix().getValue(),
-            parseUserShortDate(extractedData.getDateOfBirth().getValue()),
-            address,
-            country,
-            List.of(
-                new PhoneNumber(
-                    parsePhoneType(extractedData.getPhoneNumberType().getValue()),
-                    extractedData.getPhoneNumber().getValue())),
-            parsePersonRole(extractedData.getRole().getValue(), false),
-            List.of(extractedData.getEmail().getValue()),
-            extractedData.getRace().getValue(),
-            extractedData.getEthnicity().getValue(),
-            null,
-            extractedData.getBiologicalSex().getValue(),
-            parseYesNo(extractedData.getResidentCongregateSetting().getValue()),
-            parseYesNo(extractedData.getEmployedInHealthcare().getValue()),
-            null,
-            null);
-      } catch (IllegalArgumentException e) {
-        String errorMessage = "Error uploading patient roster";
-        log.error(
-            errorMessage
-                + " for organization "
-                + org.getExternalId()
-                + " and facility "
-                + facilityId);
-        throw new IllegalArgumentException(errorMessage);
-      }
-    }
-
-    log.info("CSV patient upload completed for {}", org.getOrganizationName());
+    log.info(
+        "Outside the @Async logic: "
+            + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
+    _async.savePeople(facility, facilityId, org, content, request);
     result.setStatus(UploadStatus.SUCCESS);
     // eventually want to send an email here instead of return success
     return result;

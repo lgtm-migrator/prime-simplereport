@@ -312,6 +312,56 @@ public class PersonService {
     return savedPerson;
   }
 
+  @AuthorizationConfiguration.RequirePermissionCreatePatientAtFacility
+  public Person addPatient(
+      Organization org,
+      UUID facilityId,
+      String lookupId,
+      String firstName,
+      String middleName,
+      String lastName,
+      String suffix,
+      LocalDate birthDate,
+      StreetAddress address,
+      String country,
+      List<PhoneNumber> phoneNumbers,
+      PersonRole role,
+      List<String> emails,
+      String race,
+      String ethnicity,
+      String tribalAffiliation,
+      String gender,
+      Boolean residentCongregateSetting,
+      Boolean employedInHealthcare,
+      String preferredLanguage,
+      TestResultDeliveryPreference testResultDelivery) {
+    Person newPatient =
+        new Person(
+            org,
+            lookupId,
+            firstName,
+            middleName,
+            lastName,
+            suffix,
+            birthDate,
+            address,
+            country,
+            role,
+            emails,
+            race,
+            ethnicity,
+            Arrays.asList(tribalAffiliation),
+            gender,
+            residentCongregateSetting,
+            employedInHealthcare,
+            preferredLanguage,
+            testResultDelivery);
+    updatePersonFacility(newPatient, facilityId);
+    Person savedPerson = _repo.save(newPatient);
+    updatePhoneNumbers(newPatient, phoneNumbers);
+    return savedPerson;
+  }
+
   // IMPLICIT AUTHORIZATION: this is used for self-registration
   public Person addPatient(
       PatientSelfRegistrationLink link,
