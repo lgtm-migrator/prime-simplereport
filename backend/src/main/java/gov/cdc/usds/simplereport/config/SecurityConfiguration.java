@@ -4,6 +4,7 @@ import com.okta.spring.boot.oauth.Okta;
 import gov.cdc.usds.simplereport.service.model.IdentityAttributes;
 import gov.cdc.usds.simplereport.service.model.IdentitySupplier;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.config.CustomScopeConfigurer;
 import org.springframework.boot.actuate.autoconfigure.security.servlet.EndpointRequest;
 import org.springframework.boot.actuate.health.HealthEndpoint;
 import org.springframework.boot.actuate.info.InfoEndpoint;
@@ -11,6 +12,7 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplicat
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
+import org.springframework.context.support.SimpleThreadScope;
 import org.springframework.http.HttpMethod;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -160,6 +162,14 @@ public class SecurityConfiguration {
     executor.setQueueCapacity(50);
     executor.setThreadNamePrefix("async-");
     return executor;
+  }
+
+  @Bean
+  public CustomScopeConfigurer customScopeConfigurer() {
+    SimpleThreadScope scope = new SimpleThreadScope();
+    CustomScopeConfigurer configurer = new CustomScopeConfigurer();
+    configurer.addScope("request", scope);
+    return configurer;
   }
 
   @Bean

@@ -30,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Slf4j
 public class PatientBulkUploadServiceAsync {
 
-  private final PersonService _personService;
   private final AddressValidationService _addressValidationService;
   private final OrganizationService _orgService;
 
@@ -42,12 +41,12 @@ public class PatientBulkUploadServiceAsync {
       UUID facilityId,
       Organization currentOrg,
       byte[] content,
-      HttpServletRequest requestFromOtherThread) {
+      HttpServletRequest requestFromOtherThread,
+      PersonService _personService) {
     System.out.println("BOOOYAH here we are in the async method");
     log.info(
         "Inside the @Async logic: "
             + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-    _orgService.getCurrentOrganizationRoles();
     final MappingIterator<Map<String, String>> valueIterator =
         CsvValidatorUtils.getIteratorForCsv(new ByteArrayInputStream(content));
 

@@ -37,6 +37,7 @@ public class PatientBulkUploadService {
   private final OrganizationService _organizationService;
   private final PatientBulkUploadFileValidator _patientBulkUploadFileValidator;
   private final PatientBulkUploadServiceAsync _async;
+  private final PersonService _personService;
 
   // This authorization will change once we open the feature to end users
   @AuthorizationConfiguration.RequireGlobalAdminUser
@@ -76,7 +77,8 @@ public class PatientBulkUploadService {
     log.info(
         "Outside the @Async logic: "
             + SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-    _async.savePeople(facility, facilityId, org, content, request);
+
+    _async.savePeople(facility, facilityId, org, content, request, _personService);
     result.setStatus(UploadStatus.SUCCESS);
     // eventually want to send an email here instead of return success
     return result;
