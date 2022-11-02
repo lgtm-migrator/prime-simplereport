@@ -36,7 +36,7 @@ variable "log_workspace_id" {
 }
 
 variable "administrator_login" {
-  default = "simple_report"
+  default = "simplereport"
 }
 
 variable "db_table" {
@@ -59,5 +59,7 @@ variable "private_dns_zone_id" {
 variable "vnet_name" {
   type = string
 }
+
+variable "vnet_id" {}
 
 variable "network_address" {}

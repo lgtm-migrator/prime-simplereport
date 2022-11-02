@@ -25,6 +25,7 @@ provider "registry.terraform.io/hashicorp/random" {
   version     = "3.4.3"
   constraints = "3.4.3"
   hashes = [
+    "h1:saZR+mhthL0OZl4SyHXZraxyaBNVMxiZzks78nWcZ2o=",
     "h1:xZGZf18JjMS06pFa4NErzANI98qi59SEcBsOcS2P2yQ=",
     "zh:41c53ba47085d8261590990f8633c8906696fa0a3c4b384ff6a7ecbf84339752",
     "zh:59d98081c4475f2ad77d881c4412c5129c56214892f490adf11c7e7a5a47de9b",
@@ -45,6 +46,7 @@ provider "registry.terraform.io/okta/okta" {
   version     = "3.37.0"
   constraints = "~> 3.19"
   hashes = [
+    "h1:RkrvwO/gYiIFvUMwE4aqGOEC7h+Do0KRBSsQ8yEriRk=",
     "h1:Xp9XTRvaEMaJVKAXyhLn/xNbMb5g+oZ373EELKY1FEw=",
     "zh:0c70589df48a60fb54a9f0d4196b457eef90ac270ff8ae60b2a5f6dfaf5b1dce",
     "zh:1a0c454f54e44af6e4fde2db01abe114d394aaf46031eb653eeb79a1377633a3",

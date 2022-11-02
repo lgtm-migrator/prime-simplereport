@@ -77,13 +77,18 @@ data "azurerm_key_vault_secret" "postgres_nophi_password" {
   key_vault_id = data.azurerm_key_vault.sr_global.id
 }
 
-data "azurerm_key_vault_secret" "mariadb_matomo_user" {
+data "azurerm_key_vault_secret" "mysql_matomo_user" {
   name         = "simple-report-${local.env}-matomo-db-username"
   key_vault_id = data.azurerm_key_vault.sr_global.id
 }
 
-data "azurerm_key_vault_secret" "mariadb_matomo_password" {
+data "azurerm_key_vault_secret" "mysql_matomo_password" {
   name         = "simple-report-${local.env}-matomo-db-password"
+  key_vault_id = data.azurerm_key_vault.sr_global.id
+}
+
+data "azurerm_key_vault_secret" "mysql_db_uri" {
+  name         = "simple-report-${local.env}-db-matomo-uri"
   key_vault_id = data.azurerm_key_vault.sr_global.id
 }
 

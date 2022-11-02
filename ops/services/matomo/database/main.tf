@@ -1,30 +1,39 @@
-resource "azurerm_mariadb_server" "matomo" {
+resource "azurerm_mysql_flexible_server" "matomo" {
   name                = "simple-report-${var.env}-matomo-db"
   location            = var.rg_location
   resource_group_name = var.rg_name
-  sku_name            = "GP_Gen5_4"
-  version             = "10.3"
+  sku_name            = "GP_Standard_D2ds_v4"
+  version             = "8.0.21"
 
   administrator_login    = var.administrator_login
-  administrator_login_password = data.azurerm_key_vault_secret.mariadb_password.value
+  administrator_password = data.azurerm_key_vault_secret.mysql_password.value
 
-  storage_mb                   = 5120
-  backup_retention_days        = 7
-  geo_redundant_backup_enabled = false
-  auto_grow_enabled = true
+  storage {
+    size_gb = 128
+    auto_grow_enabled = true
+  }
 
-  public_network_access_enabled = false
-  ssl_enforcement_enabled = true
+  backup_retention_days = 7
+
+  delegated_subnet_id = azurerm_subnet.matomo.id
+  private_dns_zone_id = azurerm_private_dns_zone.matomo.id
 
   tags = var.tags
 }
 
-resource "azurerm_mariadb_database" "matomo" {
+resource "azurerm_mysql_flexible_database" "matomo" {
   charset   = "utf8"
-  collation = "utf8_general_ci"
+  collation = "utf8_unicode_ci"
   name      = var.db_table
-  server_name = azurerm_mariadb_server.matomo.name
+  server_name = azurerm_mysql_flexible_server.matomo.name
   resource_group_name = var.rg_name
+}
+
+resource "azurerm_mysql_flexible_server_configuration" "example" {
+  name                = "require_secure_transport"
+  resource_group_name = var.rg_name
+  server_name         = azurerm_mysql_flexible_server.matomo.name
+  value               = "OFF"
 }
 
 /*

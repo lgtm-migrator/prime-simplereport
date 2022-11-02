@@ -50,3 +50,15 @@ output "matomo_server_name" {
 output "matomo_server_fqdn" {
   value = module.matomo_database.server_fqdn
 }
+
+output "matomo_db_name" {
+  value = module.matomo_database.matomo_db_name
+}
+
+output "matomo_server_id" {
+  value = module.matomo_database.server_id
+}
+
+output "matomo_subnet_id" {
+  value = module.matomo_database.subnet_id
+}

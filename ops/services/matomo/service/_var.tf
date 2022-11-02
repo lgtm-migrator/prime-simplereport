@@ -28,35 +28,43 @@ variable "webapp_subnet_id" {
   description = "Webapp Subnet ID"
 }
 
-variable "mariadb_server_name" {
+variable "mysql_server_name" {
   type        = string
-  description = "MariaDB Server name"
+  description = "MySQL Server name"
 }
 
-variable "mariadb_server_fqdn" {
+variable "mysql_server_fqdn" {
   type        = string
-  description = "MariaDB FQDN"
+  description = "MySQL FQDN"
 }
 
-variable "mariadb_url" {
+variable "mysql_url" {
   type        = string
-  description = "MariaDB Connection URL"
+  description = "MySQL Connection URL"
 }
 
-variable "mariadb_admin_username" {
+variable "mysql_admin_username" {
   type        = string
-  description = "MariaDB admin username"
+  description = "MySQL admin username"
 }
 
-variable "mariadb_admin_password" {
+variable "mysql_admin_password" {
   type        = string
-  description = "MariaDB admin password"
+  description = "MySQL admin password"
   sensitive   = true
 }
 
-variable "mariadb_matomo_db_name" {
+variable "mysql_matomo_db_name" {
   type = string
-  description = "MariaDB database name for Matomo to use"
+  description = "MySQL database name for Matomo to use"
+}
+
+variable "mysql_subnet_id" {
+
+}
+
+variable "mysql_server_id" {
+
 }
 
 variable "ai_instrumentation_key" {

@@ -77,6 +77,7 @@ module "matomo_database" {
   network_address     = local.network_cidr
 
   vnet_name = module.vnet.network.name
+  vnet_id = module.vnet.network.id
 
   tags = local.management_tags
 }
