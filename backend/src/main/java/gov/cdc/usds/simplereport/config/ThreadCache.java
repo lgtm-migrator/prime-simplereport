@@ -5,7 +5,7 @@ import org.springframework.cloud.context.scope.thread.ThreadLocalScopeCache;
 
 public class ThreadCache extends HashMap<String, String> {
   private static final InheritableThreadLocal<ThreadLocalScopeCache> cache =
-      new InheritableThreadLocal<ThreadLocalScopeCache>() {
+      new InheritableThreadLocal<>() {
         public ThreadLocalScopeCache initialValue() {
           return new ThreadLocalScopeCache();
         }
