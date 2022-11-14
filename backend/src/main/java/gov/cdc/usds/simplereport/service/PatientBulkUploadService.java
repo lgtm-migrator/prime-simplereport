@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -79,9 +80,12 @@ public class PatientBulkUploadService {
       log.error("Error reading patient bulk upload CSV", e);
       throw new CsvProcessingException("Unable to read csv");
     }
-
+    var startErrorTime = System.nanoTime();
     List<FeedbackMessage> errors =
         _patientBulkUploadFileValidator.validate(new ByteArrayInputStream(content));
+    var endErrorTime = System.nanoTime();
+
+    System.out.println("TIMING: VALIDATION TOOK " + (endErrorTime - startErrorTime));
 
     if (!errors.isEmpty()) {
       result.setStatus(UploadStatus.FAILURE);
@@ -100,93 +104,116 @@ public class PatientBulkUploadService {
     Optional<Facility> facility =
         Optional.ofNullable(facilityId).map(_organizationService::getFacilityInCurrentOrg);
 
+    var futures = new ArrayList<CompletableFuture<Object>>();
+
+    var startLoopTime = System.nanoTime();
     while (valueIterator.hasNext()) {
       final Map<String, String> row = CsvValidatorUtils.getNextRow(valueIterator);
 
-      try {
+      Facility finalAssignedFacility = assignedFacility;
+      var future =
+          CompletableFuture.supplyAsync(
+              () -> {
+                try {
+                  PatientUploadRow extractedData = new PatientUploadRow(row);
 
-        PatientUploadRow extractedData = new PatientUploadRow(row);
+                  // Fetch address information
+                  StreetAddress address =
+                      _addressValidationService.getValidatedAddress(
+                          extractedData.getStreet().getValue(),
+                          extractedData.getStreet2().getValue(),
+                          extractedData.getCity().getValue(),
+                          extractedData.getState().getValue(),
+                          extractedData.getZipCode().getValue(),
+                          null);
 
-        // Fetch address information
-        StreetAddress address =
-            _addressValidationService.getValidatedAddress(
-                extractedData.getStreet().getValue(),
-                extractedData.getStreet2().getValue(),
-                extractedData.getCity().getValue(),
-                extractedData.getState().getValue(),
-                extractedData.getZipCode().getValue(),
-                null);
+                  String country =
+                      extractedData.getCountry().getValue() == null
+                          ? "USA"
+                          : extractedData.getCountry().getValue();
 
-        String country =
-            extractedData.getCountry().getValue() == null
-                ? "USA"
-                : extractedData.getCountry().getValue();
+                  if (!_personService.isDuplicatePatient(
+                      extractedData.getFirstName().getValue(),
+                      extractedData.getLastName().getValue(),
+                      parseUserShortDate(extractedData.getDateOfBirth().getValue()),
+                      currentOrganization,
+                      facility)) {
+                    // create new person with current organization, then add to new patients list
+                    Person newPatient =
+                        new Person(
+                            currentOrganization,
+                            null,
+                            extractedData.getFirstName().getValue(),
+                            extractedData.getMiddleName().getValue(),
+                            extractedData.getLastName().getValue(),
+                            extractedData.getSuffix().getValue(),
+                            parseUserShortDate(extractedData.getDateOfBirth().getValue()),
+                            address,
+                            country,
+                            parsePersonRole(extractedData.getRole().getValue(), false),
+                            List.of(extractedData.getEmail().getValue()),
+                            convertRaceToDatabaseValue(extractedData.getRace().getValue()),
+                            convertEthnicityToDatabaseValue(
+                                extractedData.getEthnicity().getValue()),
+                            null,
+                            convertSexToDatabaseValue(extractedData.getBiologicalSex().getValue()),
+                            parseYesNo(extractedData.getResidentCongregateSetting().getValue()),
+                            parseYesNo(extractedData.getEmployedInHealthcare().getValue()),
+                            null,
+                            null);
+                    newPatient.setFacility(finalAssignedFacility); // might be null, that's fine
 
-        if (_personService.isDuplicatePatient(
-            extractedData.getFirstName().getValue(),
-            extractedData.getLastName().getValue(),
-            parseUserShortDate(extractedData.getDateOfBirth().getValue()),
-            currentOrganization,
-            facility)) {
-          continue;
-        }
+                    // collect phone numbers and associate them with the patient, then add to phone
+                    // numbers list
+                    List<PhoneNumber> newPhoneNumbers =
+                        _personService.assignPhoneNumbersToPatient(
+                            newPatient,
+                            List.of(
+                                new PhoneNumber(
+                                    parsePhoneType(extractedData.getPhoneNumberType().getValue()),
+                                    extractedData.getPhoneNumber().getValue())));
+                    newPhoneNumbers.forEach(phoneNumber -> phoneNumbersList.add((phoneNumber)));
 
-        // create new person with current organization, then add to new patients list
-        Person newPatient =
-            new Person(
-                currentOrganization,
-                null,
-                extractedData.getFirstName().getValue(),
-                extractedData.getMiddleName().getValue(),
-                extractedData.getLastName().getValue(),
-                extractedData.getSuffix().getValue(),
-                parseUserShortDate(extractedData.getDateOfBirth().getValue()),
-                address,
-                country,
-                parsePersonRole(extractedData.getRole().getValue(), false),
-                List.of(extractedData.getEmail().getValue()),
-                convertRaceToDatabaseValue(extractedData.getRace().getValue()),
-                convertEthnicityToDatabaseValue(extractedData.getEthnicity().getValue()),
-                null,
-                convertSexToDatabaseValue(extractedData.getBiologicalSex().getValue()),
-                parseYesNo(extractedData.getResidentCongregateSetting().getValue()),
-                parseYesNo(extractedData.getEmployedInHealthcare().getValue()),
-                null,
-                null);
-        newPatient.setFacility(assignedFacility); // might be null, that's fine
+                    // set primary phone number
+                    if (!newPhoneNumbers.isEmpty()) {
+                      newPatient.setPrimaryPhone(newPhoneNumbers.get(0));
+                    }
 
-        // collect phone numbers and associate them with the patient, then add to phone numbers list
-        List<PhoneNumber> newPhoneNumbers =
-            _personService.assignPhoneNumbersToPatient(
-                newPatient,
-                List.of(
-                    new PhoneNumber(
-                        parsePhoneType(extractedData.getPhoneNumberType().getValue()),
-                        extractedData.getPhoneNumber().getValue())));
-        newPhoneNumbers.forEach(phoneNumber -> phoneNumbersList.add((phoneNumber)));
-
-        // set primary phone number
-        if (!newPhoneNumbers.isEmpty()) {
-          newPatient.setPrimaryPhone(newPhoneNumbers.get(0));
-        }
-
-        // add new patient to the patients list
-        patientsList.add(newPatient);
-      } catch (IllegalArgumentException e) {
-        String errorMessage = "Error uploading patient roster";
-        log.error(
-            errorMessage
-                + " for organization "
-                + currentOrganization.getExternalId()
-                + " and facility "
-                + facilityId);
-        throw new IllegalArgumentException(errorMessage);
-      }
+                    // add new patient to the patients list
+                    patientsList.add(newPatient);
+                  }
+                  return null;
+                } catch (IllegalArgumentException e) {
+                  String errorMessage = "Error uploading patient roster";
+                  log.error(
+                      errorMessage
+                          + " for organization "
+                          + currentOrganization.getExternalId()
+                          + " and facility "
+                          + facilityId);
+                  throw new IllegalArgumentException(errorMessage);
+                }
+              });
+      futures.add(future);
     }
+    var endLoopTime = System.nanoTime();
 
+    var startFutureComplete = System.nanoTime();
+    futures.forEach(CompletableFuture::join);
+    var endFutureComplete = System.nanoTime();
+
+    System.out.println("TIMING: CREATING PATIENTS TOOK  " + (endLoopTime - startLoopTime));
+
+    var startSaveTime = System.nanoTime();
     if (patientsList != null && phoneNumbersList != null) {
       _personService.addPatientsAndPhoneNumbers(patientsList, phoneNumbersList);
     }
+    var endSaveTime = System.nanoTime();
+    System.out.println("TIMING: VALIDATION TOOK " + (endErrorTime - startErrorTime));
+    System.out.println("TIMING: CREATING ASYNC PATIENTS TOOK  " + (endLoopTime - startLoopTime));
+    System.out.println(
+        "TIMING: FINISHING ASYNC PATIENTS  " + (endFutureComplete - startFutureComplete));
+    System.out.println("TIMING: SAVING TOOK  " + (endSaveTime - startSaveTime));
 
     log.info("CSV patient upload completed for {}", currentOrganization.getOrganizationName());
     result.setStatus(UploadStatus.SUCCESS);
