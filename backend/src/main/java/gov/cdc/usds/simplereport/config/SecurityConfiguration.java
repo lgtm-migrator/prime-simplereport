@@ -135,6 +135,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
           lastName = email;
         }
         log.debug("Hello JWT user {} {} ({})", firstName, lastName, email);
+        ThreadCache.getCache().put("securityContext", SecurityContextHolder);
         return new IdentityAttributes(email, firstName, null, lastName, null);
       } else if (principal instanceof String && "anonymousUser".equals(principal)) {
         return null;

@@ -11,6 +11,7 @@ import static gov.cdc.usds.simplereport.validators.CsvValidatorUtils.convertSexT
 import com.fasterxml.jackson.databind.MappingIterator;
 import gov.cdc.usds.simplereport.api.model.errors.CsvProcessingException;
 import gov.cdc.usds.simplereport.api.uploads.PatientBulkUploadResponse;
+import gov.cdc.usds.simplereport.config.ApplicationContextUtils;
 import gov.cdc.usds.simplereport.config.AuthorizationConfiguration;
 import gov.cdc.usds.simplereport.db.model.Facility;
 import gov.cdc.usds.simplereport.db.model.Organization;
@@ -51,6 +52,8 @@ public class PatientBulkUploadService {
   private final AddressValidationService _addressValidationService;
   private final OrganizationService _organizationService;
   private final PatientBulkUploadFileValidator _patientBulkUploadFileValidator;
+  private final AsyncPatientSaveService _asyncPatientSaveService;
+  private final ApplicationContextUtils _applicationContextUtils;
 
   // This authorization will change once we open the feature to end users
   @AuthorizationConfiguration.RequireGlobalAdminUser
@@ -192,9 +195,13 @@ public class PatientBulkUploadService {
       }
     }
 
-    if (patientsList != null && phoneNumbersList != null) {
-      _personService.addPatientsAndPhoneNumbers(patientsList, phoneNumbersList);
-    }
+    AsyncPatientSaveService asyncPatientSaveService =
+        ApplicationContextUtils.getApplicationContext().getBean(AsyncPatientSaveService.class);
+    asyncPatientSaveService.savePatients(patientsList, phoneNumbersList);
+
+    //    if (patientsList != null && phoneNumbersList != null) {
+    //      _personService.addPatientsAndPhoneNumbers(patientsList, phoneNumbersList);
+    //    }
 
     log.info("CSV patient upload completed for {}", currentOrganization.getOrganizationName());
     result.setStatus(UploadStatus.SUCCESS);

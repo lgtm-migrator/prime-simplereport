@@ -24,7 +24,9 @@ import org.springframework.boot.info.GitProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.web.servlet.DispatcherServlet;
 
 @Slf4j
 @SpringBootApplication
@@ -42,9 +44,12 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 })
 @EnableScheduling
 @EnableFeignClients
+@EnableAsync
 public class SimpleReportApplication {
   public static void main(String[] args) {
-    SpringApplication.run(SimpleReportApplication.class, args);
+    SpringApplication.run(SimpleReportApplication.class, args)
+        .getBean(DispatcherServlet.class)
+        .setThreadContextInheritable(true);
   }
 
   @Bean
