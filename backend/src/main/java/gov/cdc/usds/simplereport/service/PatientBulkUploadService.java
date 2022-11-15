@@ -33,6 +33,7 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -69,9 +70,6 @@ public class PatientBulkUploadService {
       assignedFacility = _organizationService.getFacilityInCurrentOrg(facilityId);
     }
 
-    List<Person> patientsList = new ArrayList<>();
-    List<PhoneNumber> phoneNumbersList = new ArrayList<>();
-
     byte[] content;
 
     try {
@@ -104,7 +102,8 @@ public class PatientBulkUploadService {
     Optional<Facility> facility =
         Optional.ofNullable(facilityId).map(_organizationService::getFacilityInCurrentOrg);
 
-    var futures = new ArrayList<CompletableFuture<Object>>();
+    ArrayList<CompletableFuture<Optional<ImmutablePair<Person, List<PhoneNumber>>>>> futures =
+        new ArrayList<>();
 
     var startLoopTime = System.nanoTime();
     while (valueIterator.hasNext()) {
@@ -172,7 +171,8 @@ public class PatientBulkUploadService {
                                 new PhoneNumber(
                                     parsePhoneType(extractedData.getPhoneNumberType().getValue()),
                                     extractedData.getPhoneNumber().getValue())));
-                    newPhoneNumbers.forEach(phoneNumber -> phoneNumbersList.add((phoneNumber)));
+                    //                    newPhoneNumbers.forEach(phoneNumber ->
+                    // phoneNumbersList.add((phoneNumber)));
 
                     // set primary phone number
                     if (!newPhoneNumbers.isEmpty()) {
@@ -180,9 +180,12 @@ public class PatientBulkUploadService {
                     }
 
                     // add new patient to the patients list
-                    patientsList.add(newPatient);
+                    //                    patientsList.add(newPatient);
+                    return Optional.of(
+                        new ImmutablePair<Person, List<PhoneNumber>>(newPatient, newPhoneNumbers));
                   }
-                  return null;
+                  System.out.println("Returning null!");
+                  return Optional.<ImmutablePair<Person, List<PhoneNumber>>>empty();
                 } catch (IllegalArgumentException e) {
                   String errorMessage = "Error uploading patient roster";
                   log.error(
@@ -198,11 +201,30 @@ public class PatientBulkUploadService {
     }
     var endLoopTime = System.nanoTime();
 
+    System.out.println("TIMING: CREATING PATIENTS TOOK  " + (endLoopTime - startLoopTime));
+
     var startFutureComplete = System.nanoTime();
-    futures.forEach(CompletableFuture::join);
+    List<Person> patientsList = new ArrayList<>();
+    List<PhoneNumber> phoneNumbersList = new ArrayList<>();
+
+    futures.forEach(
+        f -> {
+          var res = f.join();
+          res.ifPresent(
+              r -> {
+                var patient = r.getLeft();
+                var patientPhoneNumberList = r.getRight();
+
+                patientsList.add(patient);
+                phoneNumbersList.addAll(patientPhoneNumberList);
+              });
+        });
     var endFutureComplete = System.nanoTime();
 
-    System.out.println("TIMING: CREATING PATIENTS TOOK  " + (endLoopTime - startLoopTime));
+    System.out.println(
+        "TIMING: FINISHING ASYNC PATIENTS  " + (endFutureComplete - startFutureComplete));
+    System.out.println(patientsList.size());
+    System.out.println(phoneNumbersList.size());
 
     var startSaveTime = System.nanoTime();
     if (patientsList != null && phoneNumbersList != null) {
