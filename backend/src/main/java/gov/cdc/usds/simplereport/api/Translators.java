@@ -51,6 +51,13 @@ public class Translators {
 
   private static final int MAX_STRING_LENGTH = 500;
 
+  private static String REFUSED_LITERAL = "refused";
+  private static String OTHER_LITERAL = "other";
+
+  private Translators() {
+    throw new IllegalStateException("Translators is a static utility class");
+  }
+
   public static final LocalDate parseUserShortDate(String input) {
     String date = parseString(input);
     if (date == null) {
@@ -172,14 +179,22 @@ public class Translators {
 
   private static final Map<String, String> RACES =
       Map.of(
-          "american indian or alaskan native", "native",
-          "asian", "asian",
-          "black or african american", "black",
-          "native hawaiian or other pacific islander", "pacific",
-          "white", "white",
-          "unknown", "unknown",
-          "prefer not to answer", "refused",
-          "other", "other");
+          "american indian or alaskan native",
+          "native",
+          "asian",
+          "asian",
+          "black or african american",
+          "black",
+          "native hawaiian or other pacific islander",
+          "pacific",
+          "white",
+          "white",
+          "unknown",
+          "unknown",
+          "prefer not to answer",
+          REFUSED_LITERAL,
+          OTHER_LITERAL,
+          OTHER_LITERAL);
 
   private static final Set<String> RACE_VALUES =
       RACES.values().stream().collect(Collectors.toSet());
@@ -213,7 +228,8 @@ public class Translators {
     throw IllegalGraphqlArgumentException.mustBeEnumerated(r, RACE_KEYS);
   }
 
-  private static final Set<String> ETHNICITIES = Set.of("hispanic", "not_hispanic", "refused");
+  private static final Set<String> ETHNICITIES =
+      Set.of("hispanic", "not_hispanic", REFUSED_LITERAL);
 
   public static String parseEthnicity(String e) {
     String ethnicity = parseString(e);
@@ -244,7 +260,8 @@ public class Translators {
     throw IllegalGraphqlArgumentException.mustBeEnumerated(ta, TRIBAL_AFFILIATIONS);
   }
 
-  private static final Set<String> GENDERS = Set.of("male", "female", "other", "refused");
+  private static final Set<String> GENDERS =
+      Set.of("male", "female", OTHER_LITERAL, REFUSED_LITERAL);
 
   public static String parseGender(String g) {
     String gender = parseString(g);
@@ -338,7 +355,7 @@ public class Translators {
   }
 
   public static Map<String, Boolean> parseSymptoms(String symptoms) {
-    Map<String, Boolean> symptomsMap = new HashMap<String, Boolean>();
+    Map<String, Boolean> symptomsMap = new HashMap<>();
     JSONObject symptomsJSONObject = new JSONObject(symptoms);
     Iterator<?> keys = symptomsJSONObject.keys();
     while (keys.hasNext()) {
@@ -394,7 +411,7 @@ public class Translators {
           Map.entry("government_agency", "Government Agency"),
           Map.entry("camp", "Camp"),
           Map.entry("lab", "Lab"),
-          Map.entry("other", "Other"));
+          Map.entry(OTHER_LITERAL, "Other"));
 
   private static final Set<String> ORGANIZATION_TYPE_KEYS = ORGANIZATION_TYPES.keySet();
 
