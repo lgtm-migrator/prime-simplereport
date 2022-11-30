@@ -29,7 +29,7 @@ resource "azurerm_app_service" "matomo" {
     "MATOMO_DATABASE_USER" = var.mysql_admin_username,
     "MATOMO_DATABASE_PASSWORD" = var.mysql_admin_password,
     "MATOMO_DATABASE_NAME" = var.mysql_matomo_db_name,
-    "MATOMO_URL" = "${var.env == "prod" ? "" : "${var.env}."}simplereport.gov/matomo/",
+    "MATOMO_HOST" = "${var.env == "prod" ? "" : "${var.env}."}simplereport.gov/matomo/",
     "MATOMO_ENABLE_ASSUME_SECURE_PROTOCOL" = "yes"
     "MATOMO_DATABASE_PORT_NUMBER" = 3306
   })
