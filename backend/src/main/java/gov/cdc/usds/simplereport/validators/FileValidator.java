@@ -26,12 +26,17 @@ public class FileValidator<T extends FileRow> {
 
   public List<FeedbackMessage> validate(InputStream csvStream) {
     final MappingIterator<Map<String, String>> valueIterator = getIteratorForCsv(csvStream);
+    var mapOfErrors = new HashMap<String, FeedbackMessage>();
 
     if (!valueIterator.hasNext()) {
-      throw new IllegalArgumentException("Empty or invalid CSV submitted");
+      var feedback =
+          new FeedbackMessage(
+              CsvValidatorUtils.ITEM_SCOPE,
+              "File is missing headers and other required data",
+              null);
+      mergeErrors(mapOfErrors, new ArrayList<>(List.of(feedback)));
+      //      throw new IllegalArgumentException("Empty or invalid CSV submitted");
     }
-
-    var mapOfErrors = new HashMap<String, FeedbackMessage>();
 
     while (valueIterator.hasNext()) {
       final Map<String, String> row;

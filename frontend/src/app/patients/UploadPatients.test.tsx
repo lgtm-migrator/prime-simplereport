@@ -149,7 +149,7 @@ describe("Upload Patient", () => {
       await screen.findByText("Success: File Accepted")
     ).toBeInTheDocument();
   });
-  it("should show error message and list errors if error occurs", async () => {
+  it("should show error message with a link to the patient bulk upload guide and list errors if error occurs", async () => {
     renderUploadPatients();
     let mockResponse = new Response(JSON.stringify(errorResponseBody), {
       status: 200,
@@ -162,11 +162,21 @@ describe("Upload Patient", () => {
     ).toBeInTheDocument();
     expect(
       await screen.findByText(
-        "Please resolve the errors below and upload your edited file."
+        "Please resolve the errors below and upload your edited file.",
+        { exact: false }
       )
     ).toBeInTheDocument();
     expect(await screen.findByText("bad zipcode")).toBeInTheDocument();
     expect(await screen.findByText("Row(s): 0")).toBeInTheDocument();
+
+    const supportLinkText = "bulk patient upload guide";
+    const supportLink = screen.getByText(supportLinkText).closest("a");
+    if (supportLink === null) {
+      throw Error(`Unable to find ${supportLink} link`);
+    }
+    expect(supportLink.href).toBe(
+      "https://simplereport.gov/using-simplereport/manage-people-you-test/bulk-upload-patients/#preparing-your-spreadsheet-data"
+    );
   });
   it("should show error message if 500 is returned", async () => {
     renderUploadPatients();

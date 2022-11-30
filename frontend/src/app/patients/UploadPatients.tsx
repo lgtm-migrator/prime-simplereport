@@ -28,7 +28,9 @@ const UploadPatients = () => {
   const [errors, setErrors] = useState<
     Array<FeedbackMessage | undefined | null>
   >([]);
-  const [errorMessageText, setErrorMessageText] = useState("");
+  const [errorMessageText, setErrorMessageText] = useState(
+    "" as string | JSX.Element
+  );
   const [status, setStatus] = useState<
     "submitting" | "complete" | "success" | "fail" | ""
   >("");
@@ -99,7 +101,17 @@ const UploadPatients = () => {
           setStatus("fail");
           if (response?.errors?.length) {
             setErrorMessageText(
-              "Please resolve the errors below and upload your edited file."
+              <span>
+                Please resolve the errors below and upload your edited file. See
+                the{" "}
+                <a
+                  href="https://simplereport.gov/using-simplereport/manage-people-you-test/bulk-upload-patients/#preparing-your-spreadsheet-data"
+                  target="_blank" rel="noreferrer"
+                >
+                  bulk patient upload guide
+                </a>{" "}
+                for details about accepted values.
+              </span>
             );
             setErrors(response.errors);
           } else {

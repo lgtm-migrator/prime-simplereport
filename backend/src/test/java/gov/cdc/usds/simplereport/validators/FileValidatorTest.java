@@ -1,7 +1,6 @@
 package gov.cdc.usds.simplereport.validators;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import gov.cdc.usds.simplereport.api.model.filerow.PatientUploadRow;
 import gov.cdc.usds.simplereport.api.model.filerow.TestResultRow;
@@ -25,11 +24,13 @@ class FileValidatorTest {
     // GIVEN
     InputStream input = loadCsv("patientBulkUpload/empty.csv");
     // WHEN
-    Exception exception =
-        assertThrows(
-            IllegalArgumentException.class, () -> patientBulkUploadFileValidator.validate(input));
+    List<FeedbackMessage> errors = patientBulkUploadFileValidator.validate(input);
     // THEN
-    assertThat(exception).hasMessage("Empty or invalid CSV submitted");
+    assertThat(errors).hasSize(1);
+    List<String> errorMessages =
+        errors.stream().map(FeedbackMessage::getMessage).collect(Collectors.toList());
+    assertThat(errorMessages).contains("File is missing headers and other required data");
+    assertThat(errors.get(0).getIndices()).isEqualTo(null);
   }
 
   @Test
