@@ -14,7 +14,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service to upload a roster of patient data given a CSV input. Formerly restricted to superusers
@@ -23,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
  * <p>Updated by emmastephenson on 11/23/2022
  */
 @Service
-@Transactional
 @RequiredArgsConstructor
 @Slf4j
 public class PatientBulkUploadService {

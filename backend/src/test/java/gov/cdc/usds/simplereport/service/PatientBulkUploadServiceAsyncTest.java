@@ -21,16 +21,18 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /*
  * We can't use the standard BaseServiceTest here because this service is async and requires a request context to operate.
  */
+@SpringBootTest(
+    properties = "spring-hibernate-query-utils.n-plus-one-queries-detection.enabled=false")
 public class PatientBulkUploadServiceAsyncTest extends BaseFullStackTest {
 
   @Autowired PatientBulkUploadServiceAsync _service;
-  //  @SpyBean CurrentOrganizationRolesContextHolder _orgRolesContext;
 
   @Autowired PersonService _personService;
 
@@ -46,7 +48,7 @@ public class PatientBulkUploadServiceAsyncTest extends BaseFullStackTest {
   @BeforeAll
   static void configuration() {
     SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
-    Awaitility.setDefaultTimeout(Duration.ofSeconds(60));
+    Awaitility.setDefaultTimeout(Duration.ofSeconds(10));
   }
 
   @BeforeEach
