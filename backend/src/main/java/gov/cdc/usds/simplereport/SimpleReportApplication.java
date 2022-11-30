@@ -2,7 +2,6 @@ package gov.cdc.usds.simplereport;
 
 import gov.cdc.usds.simplereport.config.AuthorizationProperties;
 import gov.cdc.usds.simplereport.config.BeanProfiles;
-import gov.cdc.usds.simplereport.config.ContextAwareTaskDecorator;
 import gov.cdc.usds.simplereport.config.CorsProperties;
 import gov.cdc.usds.simplereport.config.InitialSetupProperties;
 import gov.cdc.usds.simplereport.config.simplereport.DemoUserConfiguration;
@@ -14,7 +13,6 @@ import gov.cdc.usds.simplereport.properties.SmartyStreetsProperties;
 import gov.cdc.usds.simplereport.service.DiseaseService;
 import gov.cdc.usds.simplereport.service.OrganizationInitializingService;
 import gov.cdc.usds.simplereport.service.ScheduledTasksService;
-import java.util.concurrent.Executor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -26,10 +24,8 @@ import org.springframework.boot.info.GitProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
-import org.springframework.scheduling.annotation.AsyncConfigurerSupport;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.security.core.context.SecurityContextHolder;
 
 @Slf4j
 @SpringBootApplication
@@ -45,24 +41,24 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
   CorsProperties.class,
   AzureStorageQueueReportingProperties.class
 })
-@EnableAsync
 @EnableScheduling
 @EnableFeignClients
-public class SimpleReportApplication extends AsyncConfigurerSupport {
+public class SimpleReportApplication {
 
-  @Bean
-  public Executor taskExecutor() {
-    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
-    executor.setCorePoolSize(2);
-    executor.setMaxPoolSize(2);
-    executor.setQueueCapacity(500);
-    executor.setThreadNamePrefix("async-");
-    executor.setTaskDecorator(new ContextAwareTaskDecorator());
-    executor.initialize();
-    return executor;
-  }
+  //  @Bean
+  //  public Executor taskExecutor() {
+  //    ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+  //    executor.setCorePoolSize(2);
+  //    executor.setMaxPoolSize(2);
+  //    executor.setQueueCapacity(500);
+  //    executor.setThreadNamePrefix("async-");
+  //    executor.setTaskDecorator(new ContextAwareTaskDecorator());
+  //    executor.initialize();
+  //    return executor;
+  //  }
 
   public static void main(String[] args) {
+    SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
     SpringApplication.run(SimpleReportApplication.class, args);
   }
 
