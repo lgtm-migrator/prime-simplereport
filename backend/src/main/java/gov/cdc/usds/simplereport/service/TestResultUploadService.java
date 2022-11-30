@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.FeignException;
 import gov.cdc.usds.simplereport.api.model.errors.CsvProcessingException;
+import gov.cdc.usds.simplereport.api.model.errors.DependencyFailureException;
+import gov.cdc.usds.simplereport.api.model.filerow.TestResultRow;
 import gov.cdc.usds.simplereport.config.AuthorizationConfiguration;
 import gov.cdc.usds.simplereport.db.model.Organization;
 import gov.cdc.usds.simplereport.db.model.TestResultUpload;
@@ -17,7 +19,7 @@ import gov.cdc.usds.simplereport.service.model.reportstream.ReportStreamStatus;
 import gov.cdc.usds.simplereport.service.model.reportstream.TokenResponse;
 import gov.cdc.usds.simplereport.service.model.reportstream.UploadResponse;
 import gov.cdc.usds.simplereport.utils.TokenAuthentication;
-import gov.cdc.usds.simplereport.validators.TestResultFileValidator;
+import gov.cdc.usds.simplereport.validators.FileValidator;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -42,7 +44,7 @@ public class TestResultUploadService {
   private final DataHubClient _client;
   private final OrganizationService _orgService;
   private final TokenAuthentication _tokenAuth;
-  private final TestResultFileValidator testResultFileValidator;
+  private final FileValidator<TestResultRow> testResultFileValidator;
 
   @Value("${data-hub.url}")
   private String dataHubUrl;
@@ -68,7 +70,7 @@ public class TestResultUploadService {
   private static final ObjectMapper mapper =
       new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-  @AuthorizationConfiguration.RequirePermissionReadResultListForTestEvent
+  @AuthorizationConfiguration.RequirePermissionCSVUpload
   public TestResultUpload processResultCSV(InputStream csvStream) {
 
     TestResultUpload result = new TestResultUpload(UploadStatus.FAILURE);
@@ -116,7 +118,6 @@ public class TestResultUploadService {
         _repo.save(result);
       }
     }
-
     return result;
   }
 
@@ -125,7 +126,7 @@ public class TestResultUploadService {
       return mapper.readValue(e.contentUTF8(), UploadResponse.class);
     } catch (JsonProcessingException ex) {
       log.error("Unable to parse Report Stream response.", ex);
-      return null;
+      throw new DependencyFailureException("Unable to parse Report Stream response.");
     }
   }
 

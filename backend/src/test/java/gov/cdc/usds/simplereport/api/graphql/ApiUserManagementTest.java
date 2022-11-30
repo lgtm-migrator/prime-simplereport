@@ -44,7 +44,8 @@ import org.springframework.test.context.TestPropertySource;
 @TestPropertySource(properties = "hibernate.query.interceptor.error-level=ERROR")
 class ApiUserManagementTest extends BaseGraphqlTest {
 
-  private static final String NO_USER_ERROR = "Cannot find user.";
+  private static final String NO_USER_ERROR =
+      "header: Cannot find user.; body: Please check for errors and try again";
 
   private static final List<String> USERNAMES =
       List.of("rjj@gmail.com", "rjjones@gmail.com", "jaredholler@msn.com", "janicek90@yahoo.com");
@@ -64,7 +65,8 @@ class ApiUserManagementTest extends BaseGraphqlTest {
           UserPermission.UPDATE_TEST,
           UserPermission.SUBMIT_TEST,
           UserPermission.ACCESS_ALL_FACILITIES,
-          UserPermission.VIEW_ARCHIVED_FACILITIES);
+          UserPermission.VIEW_ARCHIVED_FACILITIES,
+          UserPermission.UPLOAD_RESULTS_SPREADSHEET);
 
   private static final EnumSet<UserPermission> TENANT_DATA_ACCESS_PERMISSIONS =
       EnumSet.allOf(UserPermission.class);
@@ -102,7 +104,8 @@ class ApiUserManagementTest extends BaseGraphqlTest {
             UserPermission.ARCHIVE_PATIENT,
             UserPermission.START_TEST,
             UserPermission.UPDATE_TEST,
-            UserPermission.SUBMIT_TEST),
+            UserPermission.SUBMIT_TEST,
+            UserPermission.UPLOAD_RESULTS_SPREADSHEET),
         extractPermissionsFromUser(who));
     assertUserCanAccessExactFacilities(who, Set.of(TestUserIdentities.TEST_FACILITY_2));
     assertLastAuditEntry(
@@ -116,7 +119,8 @@ class ApiUserManagementTest extends BaseGraphqlTest {
             UserPermission.ARCHIVE_PATIENT,
             UserPermission.START_TEST,
             UserPermission.UPDATE_TEST,
-            UserPermission.SUBMIT_TEST),
+            UserPermission.SUBMIT_TEST,
+            UserPermission.UPLOAD_RESULTS_SPREADSHEET),
         null);
 
     JsonNode orgNode = who.path("organization");
@@ -188,7 +192,8 @@ class ApiUserManagementTest extends BaseGraphqlTest {
             UserPermission.START_TEST,
             UserPermission.UPDATE_TEST,
             UserPermission.SUBMIT_TEST,
-            UserPermission.ACCESS_ALL_FACILITIES),
+            UserPermission.ACCESS_ALL_FACILITIES,
+            UserPermission.UPLOAD_RESULTS_SPREADSHEET),
         extractPermissionsFromUser(who));
     assertUserCanAccessAllFacilities(who);
   }
@@ -242,7 +247,8 @@ class ApiUserManagementTest extends BaseGraphqlTest {
             UserPermission.UPDATE_TEST,
             UserPermission.SUBMIT_TEST,
             UserPermission.ACCESS_ALL_FACILITIES,
-            UserPermission.VIEW_ARCHIVED_FACILITIES),
+            UserPermission.VIEW_ARCHIVED_FACILITIES,
+            UserPermission.UPLOAD_RESULTS_SPREADSHEET),
         extractPermissionsFromUser(user));
 
     assertUserCanAccessAllFacilities(user);
@@ -319,7 +325,8 @@ class ApiUserManagementTest extends BaseGraphqlTest {
             UserPermission.ARCHIVE_PATIENT,
             UserPermission.START_TEST,
             UserPermission.UPDATE_TEST,
-            UserPermission.SUBMIT_TEST),
+            UserPermission.SUBMIT_TEST,
+            UserPermission.UPLOAD_RESULTS_SPREADSHEET),
         List.of("addUser"));
   }
 
@@ -443,7 +450,8 @@ class ApiUserManagementTest extends BaseGraphqlTest {
             UserPermission.SEARCH_PATIENTS,
             UserPermission.START_TEST,
             UserPermission.SUBMIT_TEST,
-            UserPermission.UPDATE_TEST),
+            UserPermission.UPDATE_TEST,
+            UserPermission.UPLOAD_RESULTS_SPREADSHEET),
         extractPermissionsFromUser(enabledUser));
 
     verify(_oktaRepo)
@@ -487,7 +495,8 @@ class ApiUserManagementTest extends BaseGraphqlTest {
             UserPermission.ARCHIVE_PATIENT,
             UserPermission.START_TEST,
             UserPermission.UPDATE_TEST,
-            UserPermission.SUBMIT_TEST),
+            UserPermission.SUBMIT_TEST,
+            UserPermission.UPLOAD_RESULTS_SPREADSHEET),
         extractPermissionsFromUser(updateUser));
     assertUserCanAccessExactFacilities(updateUser, Set.of());
   }
@@ -798,7 +807,8 @@ class ApiUserManagementTest extends BaseGraphqlTest {
             UserPermission.ARCHIVE_PATIENT,
             UserPermission.START_TEST,
             UserPermission.UPDATE_TEST,
-            UserPermission.SUBMIT_TEST),
+            UserPermission.SUBMIT_TEST,
+            UserPermission.UPLOAD_RESULTS_SPREADSHEET),
         extractPermissionsFromUser(updateUser));
     assertUserCanAccessExactFacilities(
         updateUser, Set.of(TestUserIdentities.TEST_FACILITY_1, TestUserIdentities.TEST_FACILITY_2));
@@ -824,7 +834,8 @@ class ApiUserManagementTest extends BaseGraphqlTest {
             UserPermission.ARCHIVE_PATIENT,
             UserPermission.START_TEST,
             UserPermission.UPDATE_TEST,
-            UserPermission.SUBMIT_TEST),
+            UserPermission.SUBMIT_TEST,
+            UserPermission.UPLOAD_RESULTS_SPREADSHEET),
         extractPermissionsFromUser(updateUser));
     assertUserCanAccessExactFacilities(updateUser, Set.of());
   }

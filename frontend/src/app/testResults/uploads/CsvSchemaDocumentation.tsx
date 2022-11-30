@@ -3,6 +3,7 @@ import { useDocumentTitle } from "../../utils/hooks";
 import iconSprite from "../../../../node_modules/uswds/dist/img/sprite.svg";
 import "./CsvSchemaDocumentation.scss";
 import { getAppInsights } from "../../TelemetryService";
+import ScrollToTopOnMount from "../../commonComponents/ScrollToTopOnMount";
 
 import schema from "./schema.json";
 
@@ -143,6 +144,7 @@ const CsvSchemaDocumentation = () => {
 
   return (
     <div className="prime-container card-container csv-guide-container">
+      <ScrollToTopOnMount />
       <div className="usa-card__header">
         <div>
           <div className="display-flex flex-align-center">
@@ -171,6 +173,27 @@ const CsvSchemaDocumentation = () => {
           <p className="text-base sub-header">
             How to format and upload a CSV file to report test results in bulk
             through SimpleReport.
+          </p>
+          <p>
+            SimpleReport’s bulk results uploader lets you report multiple test
+            results at once using a CSV file. When you submit your results, the
+            uploader tool verifies the data, then sends your results to the
+            relevant state and/or local health department(s).
+            <br />
+            <br />
+            The results uploader is connected with all{" "}
+            <a
+              href="/getting-started/organizations-and-testing-facilities/where-does-simplereport-work"
+              className="usa-link"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              states partnered with SimpleReport
+            </a>
+            . If you report to multiple jurisdictions, you can share results
+            with them using one spreadsheet. SimpleReport routes data to the
+            appropriate health departments based on the facility location and
+            patient address fields in your CSV.
           </p>
           <iframe
             width="640"
@@ -203,22 +226,23 @@ const CsvSchemaDocumentation = () => {
                   });
                 }}
               >
-                SimpleReport spreadsheet template with example data
+                SimpleReport spreadsheet template with example data [CSV
+                download]
               </a>
             </li>
             <li>
               <a href="https://youtu.be/qqhC7PFBdek" className="usa-link">
-                Spreadsheet results uploader training video
+                Spreadsheet results uploader training video [Youtube video]
               </a>
             </li>
             <li>
-              <LinkWithQuery to={`/csv/codelookup`}>
+              <LinkWithQuery to={`/results/upload/submit/code-lookup`}>
                 Device code lookup tool
               </LinkWithQuery>
             </li>
             <li>
               <a href="mailto:support@simplereport.gov" className="usa-link">
-                SimpleReport support
+                SimpleReport support email
               </a>
             </li>
           </ul>
@@ -382,6 +406,10 @@ const CsvSchemaDocumentation = () => {
               <p>
                 Make sure your spreadsheet is in a CSV format. SimpleReport
                 doesn’t accept .XLS, .XLXS, or other formats.
+              </p>
+              <p>
+                Note: If your spreadsheet is larger than 50 MB or 10,000 rows,
+                please separate it into multiple files.
               </p>
             </li>
             <li className="usa-process-list__item">
