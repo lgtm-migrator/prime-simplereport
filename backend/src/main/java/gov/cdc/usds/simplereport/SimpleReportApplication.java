@@ -24,8 +24,6 @@ import org.springframework.boot.info.GitProperties;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
-import org.springframework.scheduling.annotation.AsyncConfigurerSupport;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -45,8 +43,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 })
 @EnableScheduling
 @EnableFeignClients
-@EnableAsync
-public class SimpleReportApplication extends AsyncConfigurerSupport {
+public class SimpleReportApplication {
   public static void main(String[] args) {
     SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
     SpringApplication.run(SimpleReportApplication.class, args);

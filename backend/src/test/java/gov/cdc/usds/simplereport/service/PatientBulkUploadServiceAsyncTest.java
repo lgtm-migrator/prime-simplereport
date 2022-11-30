@@ -1,16 +1,12 @@
 package gov.cdc.usds.simplereport.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import gov.cdc.usds.simplereport.api.BaseFullStackTest;
-import gov.cdc.usds.simplereport.db.model.Facility;
-import gov.cdc.usds.simplereport.db.model.Organization;
 import gov.cdc.usds.simplereport.db.model.Person;
 import gov.cdc.usds.simplereport.db.model.auxiliary.StreetAddress;
-import gov.cdc.usds.simplereport.test_util.TestUserIdentities;
+import gov.cdc.usds.simplereport.test_util.SliceTestConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
@@ -21,23 +17,23 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.core.context.SecurityContextHolder;
 
 /*
  * We can't use the standard BaseServiceTest here because this service is async and requires a request context to operate.
  */
-@SpringBootTest(
-    properties = "spring-hibernate-query-utils.n-plus-one-queries-detection.enabled=false")
-public class PatientBulkUploadServiceAsyncTest extends BaseFullStackTest {
+// @SpringBootTest(
+//    properties = "spring-hibernate-query-utils.n-plus-one-queries-detection.enabled=false")
+// @ActiveProfiles(profiles = "non-async")
+public class PatientBulkUploadServiceAsyncTest
+    extends BaseServiceTest<PatientBulkUploadServiceAsync> {
 
-  @Autowired PatientBulkUploadServiceAsync _service;
+  //  @Autowired PatientBulkUploadServiceAsync _service;
 
   @Autowired PersonService _personService;
 
-  private Organization org;
-  private Facility facility;
+  //  private Organization org;
+  //  private Facility facility;
 
   public static final int PATIENT_PAGE_OFFSET = 0;
   public static final int PATIENT_PAGE_SIZE = 1000;
@@ -47,22 +43,23 @@ public class PatientBulkUploadServiceAsyncTest extends BaseFullStackTest {
 
   @BeforeAll
   static void configuration() {
-    SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
+    //    SecurityContextHolder.setStrategyName(SecurityContextHolder.MODE_INHERITABLETHREADLOCAL);
     Awaitility.setDefaultTimeout(Duration.ofSeconds(10));
   }
 
   @BeforeEach
   void setup() {
     //    _initService.initAll();
+    initSampleData();
     //    truncateDb();
     // the org we're creating with the data factory doesn't match the org specifed in the role
     // claims
     // (MALLRAT vs DIS_ORG)
-    TestUserIdentities.withStandardUser(
-        () -> {
-          org = _dataFactory.createValidOrg();
-          facility = _dataFactory.createValidFacility(org);
-        });
+    //    TestUserIdentities.withStandardUser(
+    //        () -> {
+    //          org = _dataFactory.createValidOrg();
+    //          facility = _dataFactory.createValidFacility(org);
+    //        });
 
     address = new StreetAddress("123 Main Street", null, "Washington", "DC", "20008", null);
     when(addressValidationService.getValidatedAddress(any(), any(), any(), any(), any(), any()))
@@ -88,6 +85,7 @@ public class PatientBulkUploadServiceAsyncTest extends BaseFullStackTest {
   // dont forget tenant data access
 
   @Test
+  @SliceTestConfiguration.WithSimpleReportStandardUser
   void validPerson_savedToDatabase() throws IOException {
     InputStream inputStream = loadCsv("patientBulkUpload/valid.csv");
     byte[] content = inputStream.readAllBytes();
@@ -96,13 +94,13 @@ public class PatientBulkUploadServiceAsyncTest extends BaseFullStackTest {
     // taking it out causes the test to fail in a slightly more normal way, because the assertion
     // size doesn't match
     // note: the above is only true outside the n+1 issues
-    TestUserIdentities.withStandardUserInOrganization(
-        facility,
-        () -> {
-          this._service.savePatients(content, null);
-          await().until(patientsAddedToRepository(1));
-          assertThat(getPatients()).hasSize(1);
-        });
+    //    TestUserIdentities.withStandardUserInOrganization(
+    //        facility,
+    //        () -> {
+    _service.savePatients(content, null);
+    //          await().until(patientsAddedToRepository(1));
+    assertThat(getPatients()).hasSize(1);
+    //        });
   }
 
   /**
