@@ -20,7 +20,6 @@ import gov.cdc.usds.simplereport.service.DiseaseService;
 import gov.cdc.usds.simplereport.service.OrganizationService;
 import gov.cdc.usds.simplereport.test_util.DbTruncator;
 import gov.cdc.usds.simplereport.test_util.TestDataFactory;
-import java.util.Date;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -60,11 +59,8 @@ public abstract class BaseFullStackTest {
   @Autowired private SupportedDiseaseRepository _diseaseRepo;
   @Autowired private FacilityRepository _facilityRepo;
 
-  protected Date _testStart;
-
   @BeforeEach
   void initTestStart() {
-    _testStart = new Date();
     reset(auditLoggerServiceSpy);
     _diseaseService.initDiseases();
   }
