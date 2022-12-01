@@ -136,6 +136,10 @@ public class CsvValidatorUtils {
     throw new IllegalStateException("CsvValidatorUtils is a utility class");
   }
 
+  private static String getInValidValueErrorMessage(String rowValue, String columnHeader) {
+    return rowValue + " is not an acceptable value for the " + columnHeader + " column";
+  }
+
   public static List<FeedbackMessage> validateTestResult(ValueOrError input) {
     return validateSpecificValueOrSNOMED(input, TEST_RESULT_VALUES);
   }
@@ -207,8 +211,7 @@ public class CsvValidatorUtils {
     } catch (DateTimeParseException e) {
       errors.add(
           new FeedbackMessage(
-              ITEM_SCOPE,
-              input.getValue() + " is not an acceptable value for column " + input.getHeader()));
+              ITEM_SCOPE, getInValidValueErrorMessage(input.getValue(), input.getHeader())));
     }
     return errors;
   }
@@ -330,8 +333,7 @@ public class CsvValidatorUtils {
     if (!value.matches(regex)) {
       errors.add(
           new FeedbackMessage(
-              ITEM_SCOPE,
-              input.getValue() + " is not a valid value for column " + input.getHeader()));
+              ITEM_SCOPE, getInValidValueErrorMessage(input.getValue(), input.getHeader())));
     }
     return errors;
   }
@@ -346,8 +348,7 @@ public class CsvValidatorUtils {
     if (!acceptableValues.contains(value.toLowerCase())) {
       errors.add(
           new FeedbackMessage(
-              ITEM_SCOPE,
-              input.getValue() + " is not an acceptable value for column " + input.getHeader()));
+              ITEM_SCOPE, getInValidValueErrorMessage(input.getValue(), input.getHeader())));
     }
     return errors;
   }

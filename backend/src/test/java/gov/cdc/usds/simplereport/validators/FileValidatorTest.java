@@ -109,19 +109,19 @@ class FileValidatorTest {
         errors.stream().map(FeedbackMessage::getIndices).collect(Collectors.toList());
     assertThat(errorMessages)
         .contains(
-            "11/3/8 is not an acceptable value for column date_of_birth",
-            "african american is not an acceptable value for column race",
-            "androgynous is not an acceptable value for column biological_sex",
-            "latinx is not an acceptable value for column ethnicity",
-            "group home is not an acceptable value for column resident_congregate_setting",
-            "n/a is not an acceptable value for column employed_in_healthcare",
-            "doctor is not an acceptable value for column role",
-            "Alaska is not an acceptable value for column state",
-            "1234 is not a valid value for column zip_code",
-            "America is not an acceptable value for column country",
-            "4108675309 is not a valid value for column phone_number",
-            "cell is not an acceptable value for column phone_number_type",
-            "janedoe.com is not a valid value for column email");
+            "11/3/8 is not an acceptable value for the date_of_birth column",
+            "african american is not an acceptable value for the race column",
+            "androgynous is not an acceptable value for the biological_sex column",
+            "latinx is not an acceptable value for the ethnicity column",
+            "group home is not an acceptable value for the resident_congregate_setting column",
+            "n/a is not an acceptable value for the employed_in_healthcare column",
+            "doctor is not an acceptable value for the role column",
+            "Alaska is not an acceptable value for the state column",
+            "1234 is not an acceptable value for the zip_code column",
+            "America is not an acceptable value for the country column",
+            "4108675309 is not an acceptable value for the phone_number column",
+            "cell is not an acceptable value for the phone_number_type column",
+            "janedoe.com is not an acceptable value for the email column");
     indices.forEach(i -> assertThat(i).isEqualTo(List.of(2)));
   }
 
@@ -136,7 +136,7 @@ class FileValidatorTest {
     assertThat(errors).hasSize(3);
     assertThat(errors.get(0).getScope()).isEqualTo("item");
     assertThat(errors.get(0).getMessage())
-        .isEqualTo("african american is not an acceptable value for column race");
+        .isEqualTo("african american is not an acceptable value for the race column");
     assertThat(errors.get(0).getIndices()).isEqualTo(List.of(2, 3));
     assertThat(errors.get(1).getScope()).isEqualTo("item");
     assertThat(errors.get(1).getMessage()).isEqualTo("ethnicity is a required column.");
@@ -267,40 +267,40 @@ class FileValidatorTest {
         errors.stream().map(FeedbackMessage::getIndices).collect(Collectors.toList());
     assertThat(errorMessages)
         .contains(
-            "x is not an acceptable value for column patient_state",
-            "x is not an acceptable value for column ordering_provider_state",
-            "x is not an acceptable value for column testing_lab_state",
-            "x is not an acceptable value for column ordering_facility_state",
-            "x is not a valid value for column patient_zip_code",
-            "x is not a valid value for column ordering_provider_zip_code",
-            "x is not a valid value for column testing_lab_zip_code",
-            "x is not a valid value for column ordering_facility_zip_code",
-            "x is not a valid value for column patient_phone_number",
-            "x is not a valid value for column ordering_provider_phone_number",
-            "x is not a valid value for column testing_lab_phone_number",
-            "x is not a valid value for column ordering_facility_phone_number",
-            "x is not a valid value for column patient_dob",
-            "x is not a valid value for column illness_onset_date",
-            "x is not a valid value for column order_test_date",
-            "x is not a valid value for column specimen_collection_date",
-            "x is not a valid value for column testing_lab_specimen_received_date",
-            "x is not a valid value for column test_result_date",
-            "x is not a valid value for column date_result_released",
-            "x is not a valid value for column patient_email",
-            "x is not a valid value for column testing_lab_clia",
-            "x is not an acceptable value for column patient_race",
-            "x is not an acceptable value for column patient_gender",
-            "x is not an acceptable value for column patient_ethnicity",
-            "x is not an acceptable value for column pregnant",
-            "x is not an acceptable value for column employed_in_healthcare",
-            "x is not an acceptable value for column symptomatic_for_disease",
-            "x is not an acceptable value for column resident_congregate_setting",
-            "x is not an acceptable value for column hospitalized",
-            "x is not an acceptable value for column icu",
-            "x is not an acceptable value for column residence_type",
-            "x is not an acceptable value for column test_result",
-            "x is not an acceptable value for column test_result_status",
-            "x is not an acceptable value for column specimen_type");
+            "x is not an acceptable value for the patient_state column",
+            "x is not an acceptable value for the ordering_provider_state column",
+            "x is not an acceptable value for the testing_lab_state column",
+            "x is not an acceptable value for the ordering_facility_state column",
+            "x is not an acceptable value for the patient_zip_code column",
+            "x is not an acceptable value for the ordering_provider_zip_code column",
+            "x is not an acceptable value for the testing_lab_zip_code column",
+            "x is not an acceptable value for the ordering_facility_zip_code column",
+            "x is not an acceptable value for the patient_phone_number column",
+            "x is not an acceptable value for the ordering_provider_phone_number column",
+            "x is not an acceptable value for the testing_lab_phone_number column",
+            "x is not an acceptable value for the ordering_facility_phone_number column",
+            "x is not an acceptable value for the patient_dob column",
+            "x is not an acceptable value for the illness_onset_date column",
+            "x is not an acceptable value for the order_test_date column",
+            "x is not an acceptable value for the specimen_collection_date column",
+            "x is not an acceptable value for the testing_lab_specimen_received_date column",
+            "x is not an acceptable value for the test_result_date column",
+            "x is not an acceptable value for the date_result_released column",
+            "x is not an acceptable value for the patient_email column",
+            "x is not an acceptable value for the testing_lab_clia column",
+            "x is not an acceptable value for the patient_race column",
+            "x is not an acceptable value for the patient_gender column",
+            "x is not an acceptable value for the patient_ethnicity column",
+            "x is not an acceptable value for the pregnant column",
+            "x is not an acceptable value for the employed_in_healthcare column",
+            "x is not an acceptable value for the symptomatic_for_disease column",
+            "x is not an acceptable value for the resident_congregate_setting column",
+            "x is not an acceptable value for the hospitalized column",
+            "x is not an acceptable value for the icu column",
+            "x is not an acceptable value for the residence_type column",
+            "x is not an acceptable value for the test_result column",
+            "x is not an acceptable value for the test_result_status column",
+            "x is not an acceptable value for the specimen_type column");
     indices.forEach(i -> assertThat(i).isEqualTo(List.of(2)));
   }
 

@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.from;
 
 import gov.cdc.usds.simplereport.api.model.filerow.TestResultRow;
 import gov.cdc.usds.simplereport.service.model.reportstream.FeedbackMessage;
+import gov.cdc.usds.simplereport.test_util.TestErrorMessageUtil;
 import gov.cdc.usds.simplereport.validators.CsvValidatorUtils.ValueOrError;
 import java.util.HashMap;
 import java.util.List;
@@ -403,7 +404,7 @@ class TestResultRowTest {
         actual.stream()
             .map(
                 message ->
-                    message.getMessage().substring(message.getMessage().lastIndexOf(" ") + 1))
+                    TestErrorMessageUtil.getColumnNameFromInvalidErrorMessage(message.getMessage()))
             .collect(Collectors.toSet());
     assertThat(actual).hasSize(individualFields.size());
     individualFields.forEach(fieldName -> assertThat(messages).contains(fieldName));
