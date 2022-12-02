@@ -92,7 +92,7 @@ export async function dequeueMessages(
           `Dequeued ${dequeueResponse.receivedMessageItems.length} messages`
         );
         context.log(`Waiting 45 seconds`);
-        setTimeout(()=> {}, 45000);
+        await new Promise(resolve => setTimeout(resolve, 45000));
         context.log(`Done waiting, continuing dequeue loop`);
       } else {
         // There are no more messages on the queue
