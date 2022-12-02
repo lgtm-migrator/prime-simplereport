@@ -123,58 +123,58 @@ describe("lib", () => {
     });
   });
 
-  describe("dequeueMessages", () => {
-    it("calls receiveMessages until the queue is depleted", async () => {
-      // GIVEN
-      const queueClientMock = {
-        receiveMessages: jest
-          .fn()
-          .mockResolvedValue({
-            receivedMessageItems: [],
-          })
-          .mockResolvedValueOnce({
-            receivedMessageItems: [1, 2, 3],
-          })
-          .mockResolvedValueOnce({
-            receivedMessageItems: [1, 2, 3],
-          }),
-      } as jest.MockedObject<QueueClient>;
-
-      // WHEN
-      const result = await dequeueMessages(context, queueClientMock);
-
-      // THEN
-      expect(queueClientMock.receiveMessages).toHaveBeenCalledTimes(3);
-      expect(result.length).toBe(6);
-    });
-
-    it("doesn't care if receiveMessage has a transient failure", async () => {
-      // GIVEN
-      const queueClientMock = {
-        receiveMessages: jest
-          .fn()
-          .mockResolvedValue({
-            receivedMessageItems: [],
-          })
-          .mockResolvedValueOnce({
-            receivedMessageItems: [1, 2, 3],
-          })
-          .mockImplementationOnce(() => {
-            throw "oh no";
-          })
-          .mockResolvedValueOnce({
-            receivedMessageItems: [1, 2],
-          }),
-      } as jest.MockedObject<QueueClient>;
-
-      // WHEN
-      const result = await dequeueMessages(context, queueClientMock);
-
-      // THEN
-      expect(queueClientMock.receiveMessages).toHaveBeenCalledTimes(4);
-      expect(result.length).toBe(5);
-    });
-  });
+  // describe("dequeueMessages", () => {
+  //   it("calls receiveMessages until the queue is depleted", async () => {
+  //     // GIVEN
+  //     const queueClientMock = {
+  //       receiveMessages: jest
+  //         .fn()
+  //         .mockResolvedValue({
+  //           receivedMessageItems: [],
+  //         })
+  //         .mockResolvedValueOnce({
+  //           receivedMessageItems: [1, 2, 3],
+  //         })
+  //         .mockResolvedValueOnce({
+  //           receivedMessageItems: [1, 2, 3],
+  //         }),
+  //     } as jest.MockedObject<QueueClient>;
+  //
+  //     // WHEN
+  //     const result = await dequeueMessages(context, queueClientMock);
+  //
+  //     // THEN
+  //     expect(queueClientMock.receiveMessages).toHaveBeenCalledTimes(3);
+  //     expect(result.length).toBe(6);
+  //   });
+  //
+  //   it("doesn't care if receiveMessage has a transient failure", async () => {
+  //     // GIVEN
+  //     const queueClientMock = {
+  //       receiveMessages: jest
+  //         .fn()
+  //         .mockResolvedValue({
+  //           receivedMessageItems: [],
+  //         })
+  //         .mockResolvedValueOnce({
+  //           receivedMessageItems: [1, 2, 3],
+  //         })
+  //         .mockImplementationOnce(() => {
+  //           throw "oh no";
+  //         })
+  //         .mockResolvedValueOnce({
+  //           receivedMessageItems: [1, 2],
+  //         }),
+  //     } as jest.MockedObject<QueueClient>;
+  //
+  //     // WHEN
+  //     const result = await dequeueMessages(context, queueClientMock);
+  //
+  //     // THEN
+  //     expect(queueClientMock.receiveMessages).toHaveBeenCalledTimes(4);
+  //     expect(result.length).toBe(5);
+  //   });
+  // });
 
   describe("CSV conversion", () => {
     it("converts to csv and records parsing errors", () => {
