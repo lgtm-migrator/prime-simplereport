@@ -76,7 +76,7 @@ export async function dequeueMessages(
   const messages: DequeuedMessageItem[] = [];
   for (
     let messagesDequeued = 0;
-    messagesDequeued < parseInt(REPORT_STREAM_BATCH_MAXIMUM, 10);
+    messagesDequeued < 100;
     messagesDequeued += DEQUEUE_BATCH_SIZE
   ) {
     try {
@@ -85,9 +85,15 @@ export async function dequeueMessages(
       });
       if (dequeueResponse?.receivedMessageItems.length) {
         messages.push(...dequeueResponse.receivedMessageItems);
+        dequeueResponse.receivedMessageItems.forEach(i => {
+          context.log(`Dequeued ${i.messageId}, invisible until ${i.nextVisibleOn}`);
+        });
         context.log(
           `Dequeued ${dequeueResponse.receivedMessageItems.length} messages`
         );
+        context.log(`Waiting 45 seconds`);
+        setTimeout(()=> {}, 45000);
+        context.log(`Done waiting, continuing dequeue loop`);
       } else {
         // There are no more messages on the queue
         context.log("Done receiving messages");
@@ -158,7 +164,7 @@ export async function deleteSuccessfullyParsedMessages(
   for (const message of validMessages) {
     if (message.dequeueCount > 1) {
       context.log(
-        `Message has been dequeued ${message.dequeueCount} times, possibly sent more than once to RS`
+        `Message ${message.messageId} has been dequeued ${message.dequeueCount} times, possibly sent more than once to RS`
       );
     }
     deletionPromises.push(
