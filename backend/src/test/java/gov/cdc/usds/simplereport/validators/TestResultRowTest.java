@@ -356,7 +356,8 @@ class TestResultRowTest {
     var messages = actual.stream().map(FeedbackMessage::getMessage).collect(Collectors.toSet());
     assertThat(actual).hasSize(requiredFields.size());
     requiredFields.forEach(
-        fieldName -> assertThat(messages).contains(fieldName + " is a required column."));
+        fieldName ->
+            assertThat(messages).contains("File is missing data in the " + fieldName + " column."));
   }
 
   @Test

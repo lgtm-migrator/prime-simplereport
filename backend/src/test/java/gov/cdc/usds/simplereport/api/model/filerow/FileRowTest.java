@@ -35,6 +35,11 @@ class FileRowTest {
       public List<FeedbackMessage> validateIndividualValues() {
         return null;
       }
+
+      //      @Override
+      //      public List<String> getRequiredFields() {
+      //        return getRequiredFields();
+      //      }
     }
     var fileRow = new TestFileRow();
 
@@ -58,6 +63,11 @@ class FileRowTest {
       public List<FeedbackMessage> validateIndividualValues() {
         return null;
       }
+
+      //      @Override
+      //      public List<String> getRequiredFields() {
+      //        return getRequiredFields();
+      //      }
     }
     var fileRow = new TestFileRow();
 
@@ -81,6 +91,11 @@ class FileRowTest {
       public List<FeedbackMessage> validateIndividualValues() {
         return null;
       }
+
+      //      @Override
+      //      public List<String> getRequiredFields() {
+      //        return getRequiredFields();
+      //      }
     }
     var fileRow = new TestFileRow();
 

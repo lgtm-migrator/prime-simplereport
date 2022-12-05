@@ -35,9 +35,9 @@ public class FileValidator<T extends FileRow> {
               "File is missing headers and other required data",
               null);
       mergeErrors(mapOfErrors, new ArrayList<>(List.of(feedback)));
-      //      throw new IllegalArgumentException("Empty or invalid CSV submitted");
     }
 
+    //    var headerValidated = false;
     while (valueIterator.hasNext()) {
       final Map<String, String> row;
       final var finalCurrentRow = valueIterator.getCurrentLocation().getLineNr();
@@ -56,6 +56,12 @@ public class FileValidator<T extends FileRow> {
       var currentRowErrors = new ArrayList<FeedbackMessage>();
 
       var fileRow = fileRowConstructor.apply(row);
+
+      //      if (headerValidated == false) {
+      //        var errors = CsvValidatorUtils.hasMissingRequireHeaders(row, fileRow);
+      //        mergeErrors(mapOfErrors, new ArrayList<>(errors));
+      //        headerValidated = true;
+      //      }
 
       currentRowErrors.addAll(fileRow.validateRequiredFields());
       currentRowErrors.addAll(fileRow.validateIndividualValues());

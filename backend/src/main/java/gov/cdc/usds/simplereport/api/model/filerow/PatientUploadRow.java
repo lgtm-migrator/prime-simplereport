@@ -45,6 +45,21 @@ public class PatientUploadRow implements FileRow {
   final ValueOrError role;
   final ValueOrError email;
 
+  public static final List<String> requiredFields =
+      List.of(
+          "first_name",
+          "last_name",
+          "race",
+          "date_of_birth",
+          "biological_sex",
+          "ethnicity",
+          "street",
+          "state",
+          "zip_code",
+          "phone_number",
+          "employed_in_healthcare",
+          "resident_congregate_setting");
+
   public PatientUploadRow(Map<String, String> rawRow) {
     firstName = getValue(rawRow, "first_name", true);
     lastName = getValue(rawRow, "last_name", true);
@@ -74,6 +89,10 @@ public class PatientUploadRow implements FileRow {
     return getPossibleErrorsFromFields();
   }
 
+  //  @Override
+  //  public List<String> getRequiredFields() {
+  //    return requiredFields;
+  //  }
   @Override
   public List<FeedbackMessage> validateIndividualValues() {
     var errors = new ArrayList<FeedbackMessage>();

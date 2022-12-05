@@ -88,7 +88,42 @@ public class TestResultRow implements FileRow {
   final ValueOrError orderingFacilityPhoneNumber;
   final ValueOrError comment;
   final ValueOrError testResultStatus;
-
+  //  public static final List<String> requiredFields =
+  //          List.of(
+  //                  "patient_last_name",
+  //                  "patient_first_name",
+  //                  "patient_street",
+  //                  "patient_city",
+  //                  "patient_state",
+  //                  "patient_zip_code",
+  //                  "patient_county",
+  //                  "patient_phone_number",
+  //                  "patient_dob",
+  //                  "patient_gender",
+  //                  "patient_race",
+  //                  "patient_ethnicity",
+  //                  "accession_number",
+  //                  "equipment_model_name",
+  //                  "test_performed_code",
+  //                  "test_result",
+  //                  "order_test_date",
+  //                  "test_result_date",
+  //                  "specimen_type",
+  //                  "ordering_provider_id",
+  //                  "ordering_provider_last_name",
+  //                  "ordering_provider_first_name",
+  //                  "ordering_provider_street",
+  //                  "ordering_provider_city",
+  //                  "ordering_provider_state",
+  //                  "ordering_provider_zip_code",
+  //                  "ordering_provider_phone_number",
+  //                  "testing_lab_clia",
+  //                  "testing_lab_name",
+  //                  "testing_lab_street",
+  //                  "testing_lab_city",
+  //                  "testing_lab_state",
+  //                  "testing_lab_zip_code"
+  //          );
   public TestResultRow(Map<String, String> rawRow) {
     patientId = getValue(rawRow, "patient_id", false);
     patientLastName = getValue(rawRow, "patient_last_name", true);
@@ -154,6 +189,10 @@ public class TestResultRow implements FileRow {
     testResultStatus = getValue(rawRow, "test_result_status", false);
   }
 
+  //  @Override
+  //  public List<String> getRequiredFields() {
+  //    return requiredFields;
+  //  }
   @Override
   public List<FeedbackMessage> validateRequiredFields() {
     return getPossibleErrorsFromFields();
